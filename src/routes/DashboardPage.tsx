@@ -1,4 +1,5 @@
-import { Card, SimpleGrid, Text, Title } from '@mantine/core'
+import { Card, SimpleGrid, Text, Title, Tabs } from '@mantine/core'
+import { BillingDashboard } from '../components/BillingDashboard.tsx'
 
 const dashboardCards = [
   { title: 'Active Courses', value: '0', description: 'Connect Strapi to see live data.' },
@@ -12,19 +13,33 @@ function DashboardPage() {
       <Title order={2} mb="lg">
         Welcome back
       </Title>
-      <SimpleGrid cols={{ base: 1, sm: 3 }}>
-        {dashboardCards.map((card) => (
-          <Card key={card.title} radius="md" shadow="sm" padding="lg">
-            <Text size="sm" c="dimmed">
-              {card.title}
-            </Text>
-            <Title order={3}>{card.value}</Title>
-            <Text size="sm" mt="sm">
-              {card.description}
-            </Text>
-          </Card>
-        ))}
-      </SimpleGrid>
+      
+      <Tabs defaultValue="overview">
+        <Tabs.List>
+          <Tabs.Tab value="overview">Overview</Tabs.Tab>
+          <Tabs.Tab value="billing">Billing</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="overview" pt="md">
+          <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            {dashboardCards.map((card) => (
+              <Card key={card.title} radius="md" shadow="sm" padding="lg">
+                <Text size="sm" c="dimmed">
+                  {card.title}
+                </Text>
+                <Title order={3}>{card.value}</Title>
+                <Text size="sm" mt="sm">
+                  {card.description}
+                </Text>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="billing" pt="md">
+          <BillingDashboard />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { Alert, Avatar, Badge, Button, Card, Group, Image, Skeleton, Stack, Text, Title } from '@mantine/core'
+import { Alert, Avatar, Badge, Button, Card, Group, Image, Skeleton, Stack, Text, Title, Container, Grid, Paper, Tooltip } from '@mantine/core'
+import { IconCalendar, IconClock, IconUsers, IconStar, IconArrowRight, IconBook } from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
 import { useCourses } from '../services/useCourses.ts'
 import { StrapiRequestError } from '../services/strapiClient.ts'
@@ -24,81 +25,170 @@ function CourseCard({ course }: { course: Course }) {
   const endDate = formatDate(course.endDate)
 
   return (
-    <Card key={course.id} withBorder radius="md" shadow="xs" padding="lg">
+    <Card 
+      key={course.id} 
+      withBorder 
+      radius="lg" 
+      shadow="sm" 
+      padding={0}
+      className="hover-lift animate-fade-in-up"
+      style={{ 
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}
+    >
       {course.bannerImage?.url && (
         <Card.Section>
-          <Image
-            src={course.bannerImage.url}
-            alt={course.bannerImage.alternativeText ?? `${course.name} banner`}
-            height={180}
-            style={{ objectFit: 'cover' }}
-          />
+          <div style={{ position: 'relative', overflow: 'hidden' }}>
+            <Image
+              src={course.bannerImage.url}
+              alt={course.bannerImage.alternativeText ?? `${course.name} banner`}
+              height={200}
+              style={{ objectFit: 'cover' }}
+            />
+            <div 
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(2, 132, 199, 0.2) 100%)'
+              }}
+            />
+            <Group 
+              style={{ 
+                position: 'absolute', 
+                top: 12, 
+                right: 12 
+              }} 
+              gap="xs"
+            >
+              {course.monthlyPrice !== undefined && (
+                <Badge 
+                  color="primary" 
+                  variant="filled" 
+                  size="lg"
+                  radius="xl"
+                  leftSection={<IconStar size={12} />}
+                >
+                  Monthly {course.monthlyPrice}
+                </Badge>
+              )}
+              {course.semesterPrice !== undefined && (
+                <Badge 
+                  color="secondary" 
+                  variant="filled" 
+                  size="lg"
+                  radius="xl"
+                  leftSection={<IconBook size={12} />}
+                >
+                  Semester {course.semesterPrice}
+                </Badge>
+              )}
+            </Group>
+          </div>
         </Card.Section>
       )}
 
-      <Stack gap="sm" mt={course.bannerImage?.url ? 'md' : 0}>
-          <Group justify="space-between" align="flex-start">
-            <div>
-              <Title order={4}>{course.name}</Title>
-              {course.schedule && (
-                <Text size="sm" c="dimmed">
+      <Stack gap="md" p="lg">
+        <Group justify="space-between" align="flex-start">
+          <div style={{ flex: 1 }}>
+            <Title order={3} mb="xs" className="gradient-text">
+              {course.name}
+            </Title>
+            {course.schedule && (
+              <Group gap="xs" mb="sm">
+                <IconClock size={16} color="var(--mantine-color-primary-6)" />
+                <Text size="sm" c="dimmed" fw={500}>
                   {course.schedule}
-              </Text>
+                </Text>
+              </Group>
             )}
           </div>
-          <Stack gap={4} align="flex-end">
-            {course.monthlyPrice !== undefined && (
-              <Badge color="grape" variant="light">
-                Monthly {course.monthlyPrice}
-              </Badge>
-            )}
-            {course.semesterPrice !== undefined && (
-              <Badge color="blue" variant="light">
-                Semester {course.semesterPrice}
-              </Badge>
-            )}
-          </Stack>
         </Group>
 
         {(startDate || endDate) && (
-          <Text size="sm">
-            {startDate ? `Starts ${startDate}` : 'Flexible start'}
-            {endDate ? ` • Ends ${endDate}` : ''}
-          </Text>
+          <Paper p="sm" radius="md" bg="primary.0" withBorder>
+            <Group gap="xs">
+              <IconCalendar size={16} color="var(--mantine-color-primary-6)" />
+              <Text size="sm" fw={500}>
+                {startDate ? `Starts ${startDate}` : 'Flexible start'}
+                {endDate ? ` • Ends ${endDate}` : ''}
+              </Text>
+            </Group>
+          </Paper>
         )}
 
         {course.description && (
-          <Text size="sm" c="dimmed" lineClamp={3}>
+          <Text size="sm" c="dimmed" lineClamp={3} lh={1.6}>
             {course.description}
           </Text>
         )}
 
         {course.teachers.length > 0 && (
-          <Group gap="xs">
-            {course.teachers.map((teacher) => (
-              <Badge
-                key={teacher.id}
-                component={Link}
-                to={`/teachers/${teacher.documentId ?? teacher.id}`}
-                variant="outline"
-                color="teal"
-              >
-                {teacher.name}
-              </Badge>
-            ))}
-          </Group>
+          <Paper p="sm" radius="md" bg="gray.0">
+            <Group gap="xs" mb="xs">
+              <IconUsers size={16} color="var(--mantine-color-primary-6)" />
+              <Text size="sm" fw={600} c="dark">
+                Instructors
+              </Text>
+            </Group>
+            <Group gap="xs" wrap="wrap">
+              {course.teachers.map((teacher) => (
+                <Badge
+                  key={teacher.id}
+                  component={Link}
+                  to={`/teachers/${teacher.documentId ?? teacher.id}`}
+                  variant="light"
+                  color="primary"
+                  size="md"
+                  radius="xl"
+                >
+                  {teacher.name}
+                </Badge>
+              ))}
+            </Group>
+          </Paper>
         )}
 
-        <Group justify="space-between">
+        <Group justify="space-between" align="center">
           <Group gap="sm">
-            {course.teachers.slice(0, 3).map((teacher) => (
-              <Avatar key={teacher.id} src={teacher.avatar?.url} alt={teacher.name} radius="xl" size="md">
-                {teacher.name?.charAt(0) ?? '?'}
-              </Avatar>
+            {course.teachers.slice(0, 3).map((teacher, index) => (
+              <Tooltip key={teacher.id} label={teacher.name}>
+                <Avatar 
+                  src={teacher.avatar?.url} 
+                  alt={teacher.name} 
+                  radius="xl" 
+                  size="md"
+                  style={{ 
+                    border: '2px solid white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    zIndex: course.teachers.length - index
+                  }}
+                >
+                  {teacher.name?.charAt(0) ?? '?'}
+                </Avatar>
+              </Tooltip>
             ))}
+            {course.teachers.length > 3 && (
+              <Avatar radius="xl" size="md" color="primary" style={{ border: '2px solid white' }}>
+                +{course.teachers.length - 3}
+              </Avatar>
+            )}
           </Group>
-          <Button component={Link} to={`/courses/${course.documentId ?? course.id}`} variant="light">
-            View details
+          <Button 
+            component={Link} 
+            to={`/courses/${course.documentId ?? course.id}`} 
+            variant="gradient"
+            gradient={{ from: 'primary', to: 'primary.7', deg: 135 }}
+            rightSection={<IconArrowRight size={16} />}
+            size="md"
+            radius="xl"
+            className="hover-lift"
+          >
+            View Details
           </Button>
         </Group>
       </Stack>
@@ -142,32 +232,67 @@ function CoursesPage() {
   }
 
   return (
-    <Stack>
-      <Stack gap={4}>
-        <Title order={2}>Courses</Title>
-        <Text c="dimmed">
-          Browse courses synced from your Strapi backend.
-        </Text>
-      </Stack>
+    <Container size="xl" px="md">
+      <Stack gap="xl" className="animate-fade-in">
+        {/* Header Section */}
+        <Paper p="xl" radius="lg" className="glass-effect" style={{ background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(2, 132, 199, 0.1) 100%)' }}>
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Title order={1} className="gradient-text" mb="sm">
+                Our Courses
+              </Title>
+              <Text size="lg" c="dimmed" maw={600}>
+                Discover comprehensive learning experiences designed to advance your knowledge and skills.
+              </Text>
+            </div>
+            <Badge size="xl" variant="light" color="primary" radius="xl" p="md">
+              <Group gap="xs">
+                <IconBook size={20} />
+                <Text fw={600}>{data?.length || 0} Courses</Text>
+              </Group>
+            </Badge>
+          </Group>
+        </Paper>
 
-      {isLoading || isFetching ? (
-        <Stack>
-          <Skeleton height={220} radius="md" />
-          <Skeleton height={220} radius="md" />
-        </Stack>
-      ) : data?.length ? (
-        data.map((course) => <CourseCard key={course.id} course={course} />)
-      ) : (
-        <Alert color="blue" title="No courses yet">
-          Add courses in Strapi to see them listed here. We automatically connect to the
-          <Text span fw={600}>
-            {' '}
-            /api/courses
-          </Text>{' '}
-          endpoint.
-        </Alert>
-      )}
-    </Stack>
+        {/* Content Section */}
+        {isLoading || isFetching ? (
+          <Grid>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Grid.Col key={index} span={{ base: 12, sm: 6, lg: 4 }}>
+                <Skeleton height={400} radius="lg" className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }} />
+              </Grid.Col>
+            ))}
+          </Grid>
+        ) : data?.length ? (
+          <Grid>
+            {data.map((course, index) => (
+              <Grid.Col key={course.id} span={{ base: 12, sm: 6, lg: 4 }}>
+                <div 
+                  className="animate-fade-in-up" 
+                  style={{ 
+                    animationDelay: `${index * 0.1}s`,
+                    animationFillMode: 'both'
+                  }}
+                >
+                  <CourseCard course={course} />
+                </div>
+              </Grid.Col>
+            ))}
+          </Grid>
+        ) : (
+          <Paper p="xl" radius="lg" className="glass-effect">
+            <Stack align="center" gap="md">
+              <IconBook size={64} color="var(--mantine-color-primary-4)" />
+              <Title order={3} c="primary">No courses available</Title>
+              <Text c="dimmed" ta="center" maw={400}>
+                Add courses in Strapi to see them listed here. We automatically connect to the{' '}
+                <Text span fw={600} c="primary">/api/courses</Text> endpoint.
+              </Text>
+            </Stack>
+          </Paper>
+        )}
+      </Stack>
+    </Container>
   )
 }
 

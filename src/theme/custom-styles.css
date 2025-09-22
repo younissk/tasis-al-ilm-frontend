@@ -1,0 +1,126 @@
+/* Custom styles for advanced Mantine component styling */
+
+/* NavLink hover and active states */
+.mantine-NavLink-root {
+  border-radius: var(--mantine-radius-md);
+  margin-bottom: var(--mantine-spacing-xs);
+  transition: all 0.2s ease;
+}
+
+.mantine-NavLink-root:hover {
+  background-color: var(--mantine-color-primary-0);
+  transform: translateX(4px);
+}
+
+.mantine-NavLink-root[data-active] {
+  background-color: var(--mantine-color-primary-1);
+  color: var(--mantine-color-primary-7);
+  font-weight: 600;
+}
+
+.mantine-NavLink-root[data-active]:hover {
+  background-color: var(--mantine-color-primary-2);
+}
+
+/* Table hover effects */
+.mantine-Table-tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.mantine-Table-tbody tr:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+
+/* Skeleton animation enhancement */
+.mantine-Skeleton-root::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+/* Button hover effects */
+.mantine-Button-root {
+  transition: all 0.2s ease;
+}
+
+.mantine-Button-root:hover {
+  transform: translateY(-1px);
+}
+
+/* Card hover effects */
+.mantine-Card-root {
+  transition: all 0.2s ease;
+}
+
+.mantine-Card-root:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mantine-shadow-lg);
+}
+
+/* Custom gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, var(--mantine-color-primary-5) 0%, var(--mantine-color-primary-7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect utility */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Hover lift utility */
+.hover-lift {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Animation utilities */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

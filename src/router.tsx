@@ -8,6 +8,7 @@ import LoginPage from './routes/LoginPage.tsx'
 import NotFoundPage from './routes/NotFoundPage.tsx'
 import RegisterPage from './routes/RegisterPage.tsx'
 import RequireAuth from './routes/RequireAuth.tsx'
+import RequireEnrollment from './routes/RequireEnrollment.tsx'
 import TeacherDetailPage from './routes/TeacherDetailPage.tsx'
 import TeachersPage from './routes/TeachersPage.tsx'
 
@@ -22,7 +23,14 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPage /> },
           { path: 'courses', element: <CoursesPage /> },
-          { path: 'courses/:courseId', element: <CourseDetailPage /> },
+          { 
+            path: 'courses/:courseId', 
+            element: (
+              <RequireEnrollment>
+                <CourseDetailPage />
+              </RequireEnrollment>
+            )
+          },
           { path: 'teachers', element: <TeachersPage /> },
           { path: 'teachers/:teacherId', element: <TeacherDetailPage /> },
           { path: '*', element: <NotFoundPage /> },

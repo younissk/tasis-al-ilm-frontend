@@ -1,7 +1,11 @@
 import { Alert, Anchor, Avatar, Badge, Card, Group, Image, Skeleton, Stack, Text, Title } from '@mantine/core'
 import { Link, useParams } from 'react-router-dom'
 import { useCourse } from '../services/useCourses.ts'
+import { useEnrollment } from '../providers/EnrollmentProvider.tsx'
+import { useCoursePaymentPlans } from '../services/useEnrollments.ts'
 import { StrapiRequestError } from '../services/strapiClient.ts'
+import { PaymentPlanSelector } from '../components/PaymentPlanSelector.tsx'
+import { useAuth } from '../providers/AuthProvider.tsx'
 import type { Course } from '../services/strapiContent.ts'
 
 const STRAPI_CONFIGURED = Boolean(import.meta.env.VITE_STRAPI_URL)
@@ -103,6 +107,9 @@ function CourseTeachers({ course }: { course: Course }) {
 function CourseDetailPage() {
   const { courseId } = useParams<{ courseId: string }>()
   const query = useCourse(courseId)
+  const { isEnrolledInCourse, getEnrollmentForCourse } = useEnrollment()
+  const { token } = useAuth()
+  const { data: paymentPlans = [] } = useCoursePaymentPlans(courseId || '', token ?? undefined)
 
   if (!STRAPI_CONFIGURED) {
     return (
@@ -161,15 +168,28 @@ function CourseDetailPage() {
     )
   }
 
+  const isEnrolled = courseId ? isEnrolledInCourse(courseId) : false
+  const enrollment = courseId ? getEnrollmentForCourse(courseId) : null
+
   return (
     <Stack gap="xl">
       <Stack gap="sm">
-        <Title order={2}>{course.name}</Title>
-        {course.description && (
-          <Text size="sm" c="dimmed" lineClamp={3}>
-            {course.description}
-          </Text>
-        )}
+        <Group justify="space-between" align="flex-start">
+          <Stack gap="sm" style={{ flex: 1 }}>
+            <Title order={2}>{course.name}</Title>
+            {course.description && (
+              <Text size="sm" c="dimmed" lineClamp={3}>
+                {course.description}
+              </Text>
+            )}
+          </Stack>
+          
+          {isEnrolled && enrollment && (
+            <Badge color="green" size="lg" variant="light">
+              Enrolled
+            </Badge>
+          )}
+        </Group>
       </Stack>
 
       {course.bannerImage?.url && (
@@ -197,6 +217,50 @@ function CourseDetailPage() {
       )}
 
       <CourseTeachers course={course} />
+
+      {/* Enrollment Information */}
+      {isEnrolled && enrollment && (
+        <Card withBorder radius="md" padding="lg">
+          <Stack gap="sm">
+            <Title order={3}>Your Enrollment</Title>
+            <Group justify="space-between">
+              <Stack gap="xs">
+                <Text size="sm">
+                  <Text span fw={600}>Plan:</Text> {enrollment.paymentPlan?.name}
+                </Text>
+                <Text size="sm">
+                  <Text span fw={600}>Status:</Text> {enrollment.billingStatus}
+                </Text>
+                <Text size="sm">
+                  <Text span fw={600}>Enrolled:</Text> {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                </Text>
+                {enrollment.nextBillingDate && (
+                  <Text size="sm">
+                    <Text span fw={600}>Next billing:</Text> {new Date(enrollment.nextBillingDate).toLocaleDateString()}
+                  </Text>
+                )}
+                <Text size="sm">
+                  <Text span fw={600}>Total paid:</Text> ${enrollment.totalPaid.toFixed(2)}
+                </Text>
+              </Stack>
+              <Badge 
+                color={enrollment.status === 'active' ? 'green' : 'orange'} 
+                size="lg"
+                variant="light"
+              >
+                {enrollment.status}
+              </Badge>
+            </Group>
+          </Stack>
+        </Card>
+      )}
+
+      {/* Payment Plans for Non-Enrolled Users */}
+      {!isEnrolled && paymentPlans.length > 0 && (
+        <Card withBorder radius="md" padding="lg">
+          <PaymentPlanSelector courseId={courseId || ''} paymentPlans={paymentPlans} />
+        </Card>
+      )}
     </Stack>
   )
 }
