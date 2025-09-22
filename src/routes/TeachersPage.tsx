@@ -65,7 +65,7 @@ function TeachersPage() {
                   </Text>
                 )}
               </Stack>
-              <Button component={Link} to={`/teachers/${teacher.id}`} variant="light">
+              <Button component={Link} to={`/teachers/${teacher.documentId ?? teacher.id}`} variant="light">
                 View profile
               </Button>
             </Group>

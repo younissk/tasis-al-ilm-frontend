@@ -37,12 +37,12 @@ function CourseCard({ course }: { course: Course }) {
       )}
 
       <Stack gap="sm" mt={course.bannerImage?.url ? 'md' : 0}>
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Title order={4}>{course.name}</Title>
-            {course.schedule && (
-              <Text size="sm" c="dimmed">
-                {course.schedule}
+          <Group justify="space-between" align="flex-start">
+            <div>
+              <Title order={4}>{course.name}</Title>
+              {course.schedule && (
+                <Text size="sm" c="dimmed">
+                  {course.schedule}
               </Text>
             )}
           </div>
@@ -79,7 +79,7 @@ function CourseCard({ course }: { course: Course }) {
               <Badge
                 key={teacher.id}
                 component={Link}
-                to={`/teachers/${teacher.id}`}
+                to={`/teachers/${teacher.documentId ?? teacher.id}`}
                 variant="outline"
                 color="teal"
               >
@@ -97,7 +97,7 @@ function CourseCard({ course }: { course: Course }) {
               </Avatar>
             ))}
           </Group>
-          <Button component={Link} to={`/courses/${course.id}`} variant="light">
+          <Button component={Link} to={`/courses/${course.documentId ?? course.id}`} variant="light">
             View details
           </Button>
         </Group>

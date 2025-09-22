@@ -11,11 +11,13 @@ export type MediaAsset = {
 
 export type CourseSummary = {
   id: number
+  documentId?: string
   name: string
 }
 
 export type Course = {
   id: number
+  documentId?: string
   name: string
   startDate?: string
   endDate?: string
@@ -31,19 +33,18 @@ export type Course = {
 
 export type StrapiMedia = {
   id: number
-  attributes: {
-    url?: string | null
-    name?: string | null
-    alternativeText?: string | null
-    width?: number | null
-    height?: number | null
-  }
+  url?: string | null
+  name?: string | null
+  alternativeText?: string | null
+  width?: number | null
+  height?: number | null
 }
 
 export type TeacherQualification = Record<string, unknown>
 
 export type Teacher = {
   id: number
+  documentId?: string
   name: string
   description?: string
   qualifications?: TeacherQualification[]
@@ -53,40 +54,31 @@ export type Teacher = {
 
 export type StrapiTeacher = {
   id: number
-  attributes: {
+  documentId?: string
+  name?: string | null
+  description?: string | null
+  qualifications?: TeacherQualification[] | null
+  courses?: Array<{
+    id: number
+    documentId?: string
     name?: string | null
-    description?: string | null
-    qualifications?: TeacherQualification[] | null
-    courses?: {
-      data: Array<{
-        id: number
-        attributes?: {
-          name?: string | null
-        }
-      }>
-    } | null
-  }
+  }> | null
 }
 
 export type StrapiCourse = {
   id: number
-  attributes: {
-    name?: string | null
-    start_date?: string | null
-    end_date?: string | null
-    schedule?: string | null
-    description?: string | null
-    zoom_link?: string | null
-    monthly_price?: number | string | null
-    semester_price?: number | string | null
-    google_drive_link?: string | null
-    banner_image?: {
-      data?: StrapiMedia | null
-    } | null
-    teachers?: {
-      data: StrapiTeacher[]
-    } | null
-  }
+  documentId?: string
+  name?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  schedule?: string | null
+  description?: string | null
+  zoom_link?: string | null
+  monthly_price?: number | string | null
+  semester_price?: number | string | null
+  google_drive_link?: string | null
+  banner_image?: StrapiMedia | null
+  teachers?: StrapiTeacher[] | null
 }
 
 function toAbsoluteUrl(url?: string | null) {
@@ -104,17 +96,17 @@ function toAbsoluteUrl(url?: string | null) {
 }
 
 function transformMedia(media?: StrapiMedia | null): MediaAsset | undefined {
-  if (!media?.attributes?.url) {
+  if (!media?.url) {
     return undefined
   }
 
   return {
     id: media.id,
-    url: toAbsoluteUrl(media.attributes.url) ?? media.attributes.url,
-    name: media.attributes.name ?? undefined,
-    alternativeText: media.attributes.alternativeText ?? undefined,
-    width: media.attributes.width ?? undefined,
-    height: media.attributes.height ?? undefined,
+    url: toAbsoluteUrl(media.url) ?? media.url,
+    name: media.name ?? undefined,
+    alternativeText: media.alternativeText ?? undefined,
+    width: media.width ?? undefined,
+    height: media.height ?? undefined,
   }
 }
 
@@ -144,46 +136,48 @@ function normalizeRichText(value?: string | null) {
 export function transformTeacher(teacher: StrapiTeacher, options: { includeCourses?: boolean } = {}): Teacher {
   const { includeCourses = false } = options
 
-  const attributes = teacher.attributes ?? {}
-
   let courses: CourseSummary[] | undefined
-  if (includeCourses && attributes.courses?.data?.length) {
-    courses = attributes.courses.data
-      .filter((course) => course && typeof course.id === 'number')
+  if (includeCourses && teacher.courses?.length) {
+    courses = teacher.courses
+      .filter(
+        (course): course is { id: number; documentId?: string; name?: string | null } =>
+          typeof course?.id === 'number',
+      )
       .map((course) => ({
         id: course.id,
-        name: course.attributes?.name ?? `Course #${course.id}`,
+        documentId: course.documentId ?? undefined,
+        name: course.name ?? `Course #${course.id}`,
       }))
   }
 
   return {
     id: teacher.id,
-    name: attributes.name ?? `Teacher #${teacher.id}`,
-    description: normalizeRichText(attributes.description),
-    qualifications: attributes.qualifications ?? undefined,
+    documentId: teacher.documentId ?? undefined,
+    name: teacher.name ?? `Teacher #${teacher.id}`,
+    description: normalizeRichText(teacher.description),
+    qualifications: teacher.qualifications ?? undefined,
     avatar: undefined,
     courses,
   }
 }
 
 export function transformCourse(course: StrapiCourse): Course {
-  const attributes = course.attributes ?? {}
-
-  const bannerImage = transformMedia(attributes.banner_image?.data ?? undefined)
-  const teachers = attributes.teachers?.data?.map((teacher) => transformTeacher(teacher)) ?? []
+  const bannerImage = transformMedia(course.banner_image ?? undefined)
+  const teachers = course.teachers?.map((teacher) => transformTeacher(teacher)) ?? []
 
   return {
     id: course.id,
-    name: attributes.name ?? `Course #${course.id}`,
-    startDate: attributes.start_date ?? undefined,
-    endDate: attributes.end_date ?? undefined,
-    schedule: attributes.schedule ?? undefined,
-    description: normalizeRichText(attributes.description),
+    documentId: course.documentId ?? undefined,
+    name: course.name ?? `Course #${course.id}`,
+    startDate: course.start_date ?? undefined,
+    endDate: course.end_date ?? undefined,
+    schedule: course.schedule ?? undefined,
+    description: normalizeRichText(course.description),
     bannerImage,
     teachers,
-    zoomLink: attributes.zoom_link ?? undefined,
-    monthlyPrice: parseNumber(attributes.monthly_price),
-    semesterPrice: parseNumber(attributes.semester_price),
-    googleDriveLink: attributes.google_drive_link ?? undefined,
+    zoomLink: course.zoom_link ?? undefined,
+    monthlyPrice: parseNumber(course.monthly_price),
+    semesterPrice: parseNumber(course.semester_price),
+    googleDriveLink: course.google_drive_link ?? undefined,
   }
 }

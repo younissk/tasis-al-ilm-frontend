@@ -109,7 +109,13 @@ function TeacherDetailPage() {
             <Title order={3}>Courses</Title>
             <Stack gap="xs">
               {teacher.courses.map((course) => (
-                <Badge key={course.id} component={Link} to={`/courses/${course.id}`} variant="light" color="teal">
+                <Badge
+                  key={course.id}
+                  component={Link}
+                  to={`/courses/${course.documentId ?? course.id}`}
+                  variant="light"
+                  color="teal"
+                >
                   {course.name}
                 </Badge>
               ))}

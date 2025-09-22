@@ -82,7 +82,7 @@ function CourseTeachers({ course }: { course: Course }) {
               <Stack gap={4} style={{ flex: 1 }}>
                 <Group justify="space-between" align="flex-start">
                   <Text fw={600}>{teacher.name}</Text>
-                  <Badge component={Link} to={`/teachers/${teacher.id}`} variant="light" color="teal">
+                  <Badge component={Link} to={`/teachers/${teacher.documentId ?? teacher.id}`} variant="light" color="teal">
                     View profile
                   </Badge>
                 </Group>

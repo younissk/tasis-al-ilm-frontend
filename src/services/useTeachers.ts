@@ -41,7 +41,7 @@ function createRetryHandler() {
 
 async function fetchTeachers(token?: string): Promise<Teacher[]> {
   const headers = buildHeaders(token)
-  const response = await strapiFetch<StrapiTeachersResponse>('api/teachers?sort=name', {
+  const response = await strapiFetch<StrapiTeachersResponse>('api/teachers?populate=courses&sort=name', {
     headers,
   })
 
@@ -51,7 +51,7 @@ async function fetchTeachers(token?: string): Promise<Teacher[]> {
 async function fetchTeacherById(teacherId: string, token?: string): Promise<Teacher> {
   const headers = buildHeaders(token)
   const response = await strapiFetch<StrapiTeacherResponse>(
-    `api/teachers/${teacherId}?populate[courses]=*`,
+    `api/teachers/${teacherId}?populate=courses`,
     {
       headers,
     },

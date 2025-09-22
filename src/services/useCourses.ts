@@ -28,12 +28,9 @@ function buildHeaders(token?: string) {
 
 async function fetchCourses(token?: string): Promise<Course[]> {
   const headers = buildHeaders(token)
-  const response = await strapiFetch<StrapiCoursesResponse>(
-    'api/courses?populate[banner_image]=*&populate[teachers]=*&sort=name',
-    {
-      headers,
-    },
-  )
+  const response = await strapiFetch<StrapiCoursesResponse>('api/courses?populate=banner_image&populate=teachers&sort=name', {
+    headers,
+  })
 
   return response.data.map((course) => transformCourse(course))
 }
@@ -41,7 +38,7 @@ async function fetchCourses(token?: string): Promise<Course[]> {
 async function fetchCourseById(courseId: string, token?: string): Promise<Course> {
   const headers = buildHeaders(token)
   const response = await strapiFetch<StrapiCourseResponse>(
-    `api/courses/${courseId}?populate[banner_image]=*&populate[teachers]=*`,
+    `api/courses/${courseId}?populate=banner_image&populate=teachers`,
     {
       headers,
     },
